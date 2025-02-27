@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from 'react';
 
 export default function IpContainer({ setIpAddress, ipAddress, setConnected, connected }) {
-  // Default to AWS Proxy but allow users to enter a vMix IP
   const [useAwsProxy, setUseAwsProxy] = useState(true);
 
-  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix'; // Replace with your AWS Proxy URL
+  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
 
   useEffect(() => {
     const savedIpAddress = localStorage.getItem('ipAddress');
@@ -31,31 +30,38 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
     localStorage.setItem('useAwsProxy', useAwsProxy);
   }, [useAwsProxy]);
 
-  const handleConnect = async () => {
-    if (connected) {
-      // Disconnect logic
-      setConnected(false);
-      return;
-    }
-
+  // ✅ Function to Check Connection Automatically Every 5 Sec
+  const checkConnection = async () => {
     const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api`;
 
     try {
-      const response = await fetch(targetUrl, {
-        method: 'GET',
-        headers: useAwsProxy
-          ? { Authorization: AUTH_TOKEN } // Add authentication header for AWS
-          : {},
-      });
+      const response = await fetch(targetUrl, { method: 'GET' });
+      const text = await response.text();
 
-      if (response.ok) {
-        setConnected(true);
+      if (response.ok && text.includes('<vmix>')) {
+        setConnected(true); // ✅ Only set to true if vMix XML is returned
       } else {
-        alert(`Failed to connect to ${useAwsProxy ? 'AWS Proxy' : 'vMix Server'}`);
+        setConnected(false);
       }
     } catch (error) {
-      alert(`Error connecting to ${useAwsProxy ? 'AWS Proxy' : 'vMix Server'}`);
+      setConnected(false);
     }
+  };
+
+  // ✅ Run `checkConnection` every 5 seconds
+  useEffect(() => {
+    checkConnection(); // Run immediately on load
+    const interval = setInterval(checkConnection, 5000);
+    return () => clearInterval(interval);
+  }, [ipAddress, useAwsProxy]);
+
+  // ✅ Connect/Disconnect Manually
+  const handleConnect = async () => {
+    if (connected) {
+      setConnected(false);
+      return;
+    }
+    checkConnection();
   };
 
   return (
@@ -68,6 +74,7 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
           {connected ? 'Disconnect' : 'Connect'}
         </button>
       </div>
+
       {/* IP Address Input (Disabled if using AWS) */}
       <input
         className="rounded px-2 text-zinc-800 w-full"
