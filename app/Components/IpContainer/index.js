@@ -1,10 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-export default function IpContainer() {
-  const [connected, setConnected] = useState(false);
-  const [ipAddress, setIpAddress] = useState('127.0.0.1');
-
+export default function IpContainer({ setIpAddress, ipAddress, setConnected, connected }) {
   useEffect(() => {
     const savedIpAddress = localStorage.getItem('ipAddress');
     const savedConnected = localStorage.getItem('connected') === 'true';

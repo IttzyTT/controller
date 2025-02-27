@@ -2,10 +2,10 @@
 import React from 'react';
 import Countdown from './Countdown';
 
-export default function TimerController() {
+export default function TimerController({ ipAddress }) {
   const pauseTimer = async () => {
     try {
-      const response = await fetch('http://192.168.0.45:8088/api/?Function=PauseCountdown&Input=15&SelectedName=Headline.Text', {
+      const response = await fetch(`http://${ipAddress}:8088/api/?Function=PauseCountdown&Input=15&SelectedName=Headline.Text`, {
         method: 'GET',
       });
 
