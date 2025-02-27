@@ -16,7 +16,7 @@ export default function Home() {
       <main className="col-start-6 row-start-2 items-center sm:items-start">
         {!connected ? (
           <div className="col-start-6 row-start-2 whitespace-nowrap text-center">
-            <h1 className="text-4xl col-start-6 row-start-1">vMix Controller</h1>
+            <h1 className="text-4xl col-start-6 row-start-1">vMix Timer Controller</h1>
             <p>Connect to vMix server</p>
           </div>
         ) : (
