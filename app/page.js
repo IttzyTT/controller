@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 import IpContainer from './Components/IpContainer';
 import TimerController from './Components/TimerController';
+import VmixData from './Components/VmixData';
 
 export default function Home() {
   const [ipAddress, setIpAddress] = useState('127.0.0.1');
@@ -23,6 +24,9 @@ export default function Home() {
           <TimerController ipAddress={ipAddress} />
         )}
       </main>
+      <div>
+        <VmixData />
+      </div>
       <footer className="row-start-3 col-start-6 whitespace-nowrap">
         <p>
           ILJ STREAMING <span>{new Date().getFullYear()}</span>
