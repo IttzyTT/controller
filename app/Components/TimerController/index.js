@@ -1,13 +1,18 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Countdown from './Countdown';
 
-export default function TimerController({ ipAddress }) {
+export default function TimerController({ ipAddress, useAwsProxy }) {
+  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
+
+  // Use AWS Proxy or manual IP
+  const targetUrl = useAwsProxy
+    ? `${DEFAULT_AWS_PROXY_URL}?Function=PauseCountdown&Input=15&SelectedName=Headline.Text`
+    : `http://${ipAddress}:8088/api/?Function=PauseCountdown&Input=15&SelectedName=Headline.Text`;
+
   const pauseTimer = async () => {
     try {
-      const response = await fetch(`http://${ipAddress}:8088/api/?Function=PauseCountdown&Input=15&SelectedName=Headline.Text`, {
-        method: 'GET',
-      });
+      const response = await fetch(targetUrl, { method: 'GET' });
 
       if (response.ok) {
         alert('Timer paused successfully');

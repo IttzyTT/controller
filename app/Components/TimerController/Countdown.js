@@ -2,12 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 
-export default function Countdown() {
+export default function Countdown({ ipAddress, useAwsProxy }) {
   const [countdown, setCountdown] = useState('Loading...');
+
+  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
+
+  // Determine API endpoint based on user selection
+  const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api/`;
 
   const fetchCountdown = useCallback(async () => {
     try {
-      const response = await fetch('http://192.168.0.45:8088/api/');
+      const response = await fetch(targetUrl);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -32,7 +37,7 @@ export default function Countdown() {
       console.error('Error fetching countdown:', error);
       setCountdown('Error');
     }
-  }, []);
+  }, [targetUrl]);
 
   useEffect(() => {
     fetchCountdown(); // Initial fetch
