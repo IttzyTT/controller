@@ -5,7 +5,7 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
   // Default to AWS Proxy but allow users to enter a vMix IP
   const [useAwsProxy, setUseAwsProxy] = useState(true);
 
-  const DEFAULT_AWS_PROXY_URL = 'http://awsvmixcontroller.tailabbf6c.ts.net:3001/vmix'; // Replace with your AWS Proxy URL
+  const DEFAULT_AWS_PROXY_URL = 'http://awsvmixcontroller.tailabbf6c.ts.net:3002/vmix'; // Replace with your AWS Proxy URL
   const AUTH_TOKEN = 'Bearer my-secret-token'; // Authentication token (if required)
 
   useEffect(() => {
@@ -69,13 +69,6 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
           {connected ? 'Disconnect' : 'Connect'}
         </button>
       </div>
-
-      {/* Switch Between AWS Proxy and Manual IP */}
-      <label className="flex items-center space-x-2">
-        <input type="checkbox" checked={useAwsProxy} onChange={() => setUseAwsProxy(!useAwsProxy)} />
-        <span>Use AWS Proxy</span>
-      </label>
-
       {/* IP Address Input (Disabled if using AWS) */}
       <input
         className="rounded px-2 text-zinc-800 w-full"
@@ -85,6 +78,12 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
         disabled={useAwsProxy} // Disable if AWS Proxy is selected
         onChange={(e) => setIpAddress(e.target.value)}
       />
+
+      {/* Switch Between AWS Proxy and Manual IP */}
+      <label className="flex items-center space-x-2">
+        <input type="checkbox" checked={useAwsProxy} onChange={() => setUseAwsProxy(!useAwsProxy)} />
+        <span>Use AWS Proxy</span>
+      </label>
     </div>
   );
 }
