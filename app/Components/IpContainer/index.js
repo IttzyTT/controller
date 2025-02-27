@@ -5,7 +5,7 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
   // Default to AWS Proxy but allow users to enter a vMix IP
   const [useAwsProxy, setUseAwsProxy] = useState(true);
 
-  const DEFAULT_AWS_PROXY_URL = 'http://awsvmixcontroller.tailabbf6c.ts.net:3002/vmix'; // Replace with your AWS Proxy URL
+  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net:3002/vmix'; // Replace with your AWS Proxy URL
   const AUTH_TOKEN = 'Bearer my-secret-token'; // Authentication token (if required)
 
   useEffect(() => {
