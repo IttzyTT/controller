@@ -32,14 +32,22 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
 
   // ✅ Function to Check Connection Automatically Every 5 Sec
   const checkConnection = async () => {
-    const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api`;
+    const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api/`;
 
     try {
       const response = await fetch(targetUrl, { method: 'GET' });
       const text = await response.text();
+      const xml = new window.DOMParser().parseFromString(text, 'text/xml');
 
-      if (response.ok && text.includes('<vmix>')) {
-        setConnected(true); // ✅ Only set to true if vMix XML is returned
+      if (response.ok && xml.querySelector('vmix')) {
+        setConnected(true);
+
+        // ✅ Fetch system details
+        const version = xml.querySelector('version')?.textContent || 'Unknown';
+        const streaming = xml.querySelector('streaming')?.textContent === 'True';
+        const recording = xml.querySelector('recording')?.textContent === 'True';
+
+        console.log(`vMix Version: ${version}, Streaming: ${streaming}, Recording: ${recording}`);
       } else {
         setConnected(false);
       }
