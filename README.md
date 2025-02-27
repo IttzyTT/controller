@@ -1,4 +1,4 @@
-This is a Vmix controller
+This is a Vmix controller (Still in building process)
 
 ## Getting Started
 
