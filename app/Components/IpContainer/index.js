@@ -44,7 +44,7 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
   return (
     <div className="flex space-x-2 items-center">
       <div className={`${connected ? 'bg-green-600' : 'bg-red-600'} rounded-full h-3 w-3 transform animate-pulse`} />
-      <div>Vmix:</div>
+      <div>vMix:</div>
       <input
         className="rounded px-2 text-zinc-800"
         type="text"

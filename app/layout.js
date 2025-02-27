@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'Vmix Controller',
-  description: 'ILJ Streaming - Vmix Controller',
+  title: 'vMix Controller',
+  description: 'ILJ Streaming - vMix Controller',
 };
 
 export default function RootLayout({ children }) {
