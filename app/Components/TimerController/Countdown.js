@@ -7,7 +7,7 @@ export default function Countdown({ ipAddress, useAwsProxy }) {
 
   const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
 
-  // ✅ Ensure API endpoint is valid before making requests
+  // ✅ Force HTTPS by default when using AWS Proxy
   const baseUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null; // Prevents invalid requests
 
   const fetchCountdown = useCallback(async () => {

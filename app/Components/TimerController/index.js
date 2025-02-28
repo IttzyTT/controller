@@ -8,15 +8,23 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
 
   const [inputKey, setInputKey] = useState(null);
 
-  // ✅ Ensure the `ipAddress` is set correctly before making requests
-  const baseUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null; // Prevents errors when `ipAddress` is undefined
+  // ✅ Ensure `useAwsProxy` is always defined
+  const isAwsProxy = useAwsProxy !== undefined ? useAwsProxy : true;
+
+  // ✅ Prevents invalid API calls
+  const baseUrl = isAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null;
 
   // ✅ Fetch Input Key for Input #15
   const fetchInputKey = async () => {
-    if (!baseUrl) return; // Prevents fetch if no valid URL
+    if (!baseUrl) {
+      console.warn('Skipping fetchInputKey: No valid API URL');
+      return;
+    }
 
     try {
       const response = await fetch(baseUrl);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
       const text = await response.text();
       const parser = new DOMParser();
       const xml = parser.parseFromString(text, 'text/xml');
@@ -34,12 +42,10 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
     }
   };
 
-  // ✅ Fetch input key when component mounts
+  // ✅ Fetch input key when component mounts or proxy settings change
   useEffect(() => {
-    if (baseUrl) {
-      fetchInputKey();
-    }
-  }, [ipAddress, useAwsProxy]);
+    if (baseUrl) fetchInputKey();
+  }, [ipAddress, isAwsProxy]);
 
   // ✅ Function to Pause Timer
   const pauseTimer = async () => {
@@ -67,7 +73,7 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
 
   return (
     <div className="space-y-3">
-      <Countdown />
+      <Countdown ipAddress={ipAddress} useAwsProxy={isAwsProxy} />
       <button
         className="p-4 bg-white text-zinc-700 whitespace-nowrap"
         onClick={pauseTimer}

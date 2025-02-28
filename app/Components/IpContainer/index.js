@@ -11,16 +11,20 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
     const savedConnected = localStorage.getItem('connected') === 'true';
     const savedUseAwsProxy = localStorage.getItem('useAwsProxy') === 'true';
 
-    if (savedIpAddress) {
+    if (savedUseAwsProxy) {
+      setUseAwsProxy(true);
+    } else if (savedIpAddress) {
       setIpAddress(savedIpAddress);
     }
+
     setConnected(savedConnected);
-    setUseAwsProxy(savedUseAwsProxy);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('ipAddress', ipAddress);
-  }, [ipAddress]);
+    if (!useAwsProxy) {
+      localStorage.setItem('ipAddress', ipAddress);
+    }
+  }, [ipAddress, useAwsProxy]);
 
   useEffect(() => {
     localStorage.setItem('connected', connected);
@@ -32,7 +36,9 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
 
   // ✅ Function to Check Connection Automatically Every 5 Sec
   const checkConnection = async () => {
-    const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api/`;
+    const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null;
+
+    if (!targetUrl) return;
 
     try {
       const response = await fetch(targetUrl, { method: 'GET' });
@@ -40,19 +46,18 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
       const xml = new window.DOMParser().parseFromString(text, 'text/xml');
 
       if (response.ok && xml.querySelector('vmix')) {
-        setConnected(true);
+        if (!connected) setConnected(true); // ✅ Only update if status has changed
 
         // ✅ Fetch system details
         const version = xml.querySelector('version')?.textContent || 'Unknown';
-        const streaming = xml.querySelector('streaming')?.textContent === 'True';
-        const recording = xml.querySelector('recording')?.textContent === 'True';
 
-        console.log(`vMix Version: ${version}, Streaming: ${streaming}, Recording: ${recording}`);
+        console.log(`vMix Version: ${version}, System is running`);
       } else {
-        setConnected(false);
+        if (connected) setConnected(false); // ✅ Prevent unnecessary disconnects
       }
     } catch (error) {
-      setConnected(false);
+      if (connected) setConnected(false);
+      console.error('Error checking vMix connection:', error);
     }
   };
 
@@ -84,14 +89,15 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
       </div>
 
       {/* IP Address Input (Disabled if using AWS) */}
-      <input
-        className="rounded px-2 text-zinc-800 w-full"
-        type="text"
-        placeholder="Enter vMix IP (e.g., 192.168.0.45)"
-        value={useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress}
-        disabled={useAwsProxy} // Disable if AWS Proxy is selected
-        onChange={(e) => setIpAddress(e.target.value)}
-      />
+      {!useAwsProxy && (
+        <input
+          className="rounded px-2 text-zinc-800 w-full"
+          type="text"
+          placeholder="Enter vMix IP (e.g., 192.168.0.45)"
+          value={ipAddress}
+          onChange={(e) => setIpAddress(e.target.value)}
+        />
+      )}
 
       {/* Switch Between AWS Proxy and Manual IP */}
       <label className="flex items-center space-x-2">
