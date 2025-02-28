@@ -11,8 +11,6 @@ export default function IpContainer({ setIpAddress, ipAddress, setConnected, con
     const savedConnected = localStorage.getItem('connected') === 'true';
     const savedUseAwsProxy = localStorage.getItem('useAwsProxy') === 'true';
 
-    // hej
-
     if (savedUseAwsProxy) {
       setUseAwsProxy(true);
     } else if (savedIpAddress) {
