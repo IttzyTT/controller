@@ -23,10 +23,10 @@ export default function Home() {
         ) : (
           <TimerController ipAddress={ipAddress} />
         )}
+        <div className="w-full whitespace-nowrap">
+          <VmixData />
+        </div>
       </main>
-      <div>
-        <VmixData />
-      </div>
       <footer className="row-start-3 col-start-6 whitespace-nowrap">
         <p>
           ILJ STREAMING <span>{new Date().getFullYear()}</span>
