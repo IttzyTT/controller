@@ -16,11 +16,11 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
 
   console.debug({ baseUrl });
 
-  // ✅ Fetch Input Key for Input #15
+  // ✅ Function to Fetch Input Key for Input #15
   const fetchInputKey = async () => {
     if (!baseUrl) {
       console.warn('Skipping fetchInputKey: No valid API URL');
-      return;
+      return null;
     }
 
     try {
@@ -38,28 +38,26 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
       console.debug({ input });
 
       if (input) {
-        setInputKey(input.getAttribute('key'));
+        return input.getAttribute('key'); // ✅ Return key instead of setting state
       } else {
         console.error('Input 15 not found');
+        return null;
       }
     } catch (error) {
       console.error('Error fetching input key:', error);
+      return null;
     }
   };
 
-  // ✅ Fetch input key when component mounts or proxy settings change
-  useEffect(() => {
-    if (baseUrl) fetchInputKey();
-  }, [ipAddress, isAwsProxy]);
-
-  // ✅ Function to Pause Timer
+  // ✅ Function to Pause Timer (Now Calls `fetchInputKey` on Click)
   const pauseTimer = async () => {
-    if (!inputKey || !baseUrl) {
+    const key = await fetchInputKey(); // ✅ Fetch key before making API request
+    if (!key || !baseUrl) {
       alert('Input key not found or connection issue. Please wait.');
       return;
     }
 
-    const targetUrl = `${baseUrl}?Function=PauseCountdown&Input=${inputKey}&SelectedName=Headline.Text`;
+    const targetUrl = `${baseUrl}?Function=PauseCountdown&Input=${key}&SelectedName=Headline.Text`;
 
     try {
       const response = await fetch(targetUrl, { method: 'GET' });
@@ -81,10 +79,10 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
       <Countdown ipAddress={ipAddress} useAwsProxy={isAwsProxy} />
       <button
         className="p-4 bg-white text-zinc-700 whitespace-nowrap"
-        onClick={pauseTimer}
-        disabled={!inputKey || !baseUrl} // Prevents clicks if connection is not ready
+        onClick={pauseTimer} // ✅ Now fetches key onClick before API request
+        disabled={!baseUrl} // Prevents clicks if connection is not ready
       >
-        {inputKey ? 'Pause Timer on Input 15' : 'Loading...'}
+        Pause Timer on Input 15
       </button>
     </div>
   );
