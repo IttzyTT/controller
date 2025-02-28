@@ -7,12 +7,17 @@ export default function Countdown({ ipAddress, useAwsProxy }) {
 
   const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
 
-  // Determine API endpoint based on user selection
-  const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api/`;
+  // ✅ Ensure API endpoint is valid before making requests
+  const baseUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null; // Prevents invalid requests
 
   const fetchCountdown = useCallback(async () => {
+    if (!baseUrl) {
+      console.warn('Countdown API URL is missing.');
+      return;
+    }
+
     try {
-      const response = await fetch(targetUrl);
+      const response = await fetch(baseUrl);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -37,18 +42,20 @@ export default function Countdown({ ipAddress, useAwsProxy }) {
       console.error('Error fetching countdown:', error);
       setCountdown('Error');
     }
-  }, [targetUrl]);
+  }, [baseUrl]);
 
   useEffect(() => {
-    fetchCountdown(); // Initial fetch
-    const interval = setInterval(fetchCountdown, 1000); // Refresh every second
+    if (baseUrl) {
+      fetchCountdown(); // Initial fetch
+      const interval = setInterval(fetchCountdown, 1000); // Refresh every second
 
-    return () => clearInterval(interval); // Cleanup interval
-  }, [fetchCountdown]);
+      return () => clearInterval(interval); // Cleanup interval
+    }
+  }, [fetchCountdown, baseUrl]);
 
   return (
     <div>
-      <span className="countdown-display text-7xl">{countdown}</span>
+      <span className="countdown-display text-7xl">{baseUrl ? countdown : 'Waiting for connection...'}</span>
     </div>
   );
 }
