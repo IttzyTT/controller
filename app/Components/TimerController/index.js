@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import Countdown from './Countdown';
 
@@ -7,11 +8,13 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
 
   const [inputKey, setInputKey] = useState(null);
 
-  // Determine API endpoint
-  const baseUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : `http://${ipAddress}:8088/api/`;
+  // ✅ Ensure the `ipAddress` is set correctly before making requests
+  const baseUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null; // Prevents errors when `ipAddress` is undefined
 
-  // ✅ Function to fetch the correct input "Key" for Input #15
+  // ✅ Fetch Input Key for Input #15
   const fetchInputKey = async () => {
+    if (!baseUrl) return; // Prevents fetch if no valid URL
+
     try {
       const response = await fetch(baseUrl);
       const text = await response.text();
@@ -31,15 +34,17 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
     }
   };
 
-  // Fetch input key on component mount
+  // ✅ Fetch input key when component mounts
   useEffect(() => {
-    fetchInputKey();
+    if (baseUrl) {
+      fetchInputKey();
+    }
   }, [ipAddress, useAwsProxy]);
 
-  // ✅ Function to pause the countdown
+  // ✅ Function to Pause Timer
   const pauseTimer = async () => {
-    if (!inputKey) {
-      alert('Input key not found yet. Please wait.');
+    if (!inputKey || !baseUrl) {
+      alert('Input key not found or connection issue. Please wait.');
       return;
     }
 
@@ -66,7 +71,7 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
       <button
         className="p-4 bg-white text-zinc-700 whitespace-nowrap"
         onClick={pauseTimer}
-        disabled={!inputKey} // Disable button until key is loaded
+        disabled={!inputKey || !baseUrl} // Prevents clicks if connection is not ready
       >
         {inputKey ? 'Pause Timer on Input 15' : 'Loading...'}
       </button>
