@@ -3,20 +3,12 @@
 import React from 'react';
 import Countdown from './Countdown';
 
-export default function TimerController({ ipAddress, useAwsProxy }) {
-  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
-
-  console.debug({ useAwsProxy, ipAddress });
-
-  // ✅ Ensure `useAwsProxy` is always defined
+export default function TimerController({ baseUrl, ipAddress, useAwsProxy }) {
   const isAwsProxy = useAwsProxy !== undefined ? useAwsProxy : true;
-
-  // ✅ Prevents invalid API calls
-  const baseUrl = isAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null;
 
   console.debug({ baseUrl, isAwsProxy });
 
-  // ✅ Function to Fetch Input Key for Input #15
+  // Function to Fetch Input Key for Input #15
   const fetchInputKey = async () => {
     if (!baseUrl) {
       console.debug('Skipping fetchInputKey: No valid API URL');
@@ -35,7 +27,7 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
       const input = Array.from(xml.querySelectorAll('input')).find((el) => el.getAttribute('number') === '15');
 
       if (input) {
-        return input.getAttribute('key'); // ✅ Return key instead of setting state
+        return input.getAttribute('key');
       } else {
         console.error('Input 15 not found');
         return null;
@@ -46,17 +38,15 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
     }
   };
 
-  // ✅ Function to Pause Timer (Now Calls `fetchInputKey` on Click)
+  //  Function to Pause Timer (Now Calls `fetchInputKey` on Click)
   const pauseTimer = async () => {
-    const key = await fetchInputKey(); // ✅ Fetch key before making API request
+    const key = await fetchInputKey();
     if (!key || !baseUrl) {
       alert('Input key not found or connection issue. Please wait.');
       return;
     }
 
     const targetUrl = `${baseUrl}?Function=PauseCountdown&Input=${key}&SelectedName=Headline.Text`;
-
-    console.debug(targetUrl);
 
     try {
       const response = await fetch(targetUrl, { method: 'GET' });
@@ -76,12 +66,8 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
   return (
     <div className="space-y-3">
       <Countdown ipAddress={ipAddress} useAwsProxy={isAwsProxy} />
-      <button
-        className="p-4 bg-white text-zinc-700 whitespace-nowrap"
-        onClick={pauseTimer} // ✅ Now fetches key onClick before API request
-        disabled={!baseUrl} // Prevents clicks if connection is not ready
-      >
-        Pause Timer on Input 15
+      <button className="p-4 bg-white text-zinc-700 whitespace-nowrap" onClick={pauseTimer} disabled={!baseUrl}>
+        Pause Timer
       </button>
     </div>
   );

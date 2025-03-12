@@ -9,11 +9,14 @@ export default function Home() {
   const [useAwsProxy, setUseAwsProxy] = useState(true);
   const [ipAddress, setIpAddress] = useState('127.0.0.1');
   const [connected, setConnected] = useState(false);
+  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
+  const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null;
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] p-10 grid-cols-10 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]">
       <div className="whitespace-nowrap col-start-3 row-start-1 col-span-2">
         <IpContainer
+          targetUrl={targetUrl}
           useAwsProxy={useAwsProxy}
           setUseAwsProxy={setUseAwsProxy}
           ipAddress={ipAddress}
@@ -29,9 +32,9 @@ export default function Home() {
             <p>Connect to vMix server</p>
           </div>
         ) : (
-          <TimerController ipAddress={ipAddress} useAwsProxy={useAwsProxy} />
+          <TimerController baseUrl={targetUrl} ipAddress={ipAddress} useAwsProxy={useAwsProxy} />
         )}
-        <div className="w-full whitespace-nowrap">
+        <div className="w-full whitespace-nowrap mt-20">
           <VmixData />
         </div>
       </main>

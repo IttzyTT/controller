@@ -1,9 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
-const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
-
-export default function IpContainer({ useAwsProxy, setUseAwsProxy, setIpAddress, ipAddress, setConnected, connected }) {
+export default function IpContainer({ targetUrl, useAwsProxy, setUseAwsProxy, setIpAddress, ipAddress, setConnected, connected }) {
   useEffect(() => {
     const savedIpAddress = localStorage.getItem('ipAddress');
     const savedConnected = localStorage.getItem('connected') === 'true';
@@ -19,23 +17,14 @@ export default function IpContainer({ useAwsProxy, setUseAwsProxy, setIpAddress,
   }, []);
 
   useEffect(() => {
+    localStorage.setItem('useAwsProxy', useAwsProxy);
+    localStorage.setItem('connected', connected);
     if (!useAwsProxy) {
       localStorage.setItem('ipAddress', ipAddress);
     }
-  }, [ipAddress, useAwsProxy]);
+  }, [useAwsProxy, connected, ipAddress]);
 
-  useEffect(() => {
-    localStorage.setItem('connected', connected);
-  }, [connected]);
-
-  useEffect(() => {
-    localStorage.setItem('useAwsProxy', useAwsProxy);
-  }, [useAwsProxy]);
-
-  // ✅ Function to Check Connection Automatically Every 5 Sec
   const checkConnection = async () => {
-    const targetUrl = useAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null;
-
     if (!targetUrl) return;
 
     try {
@@ -44,14 +33,13 @@ export default function IpContainer({ useAwsProxy, setUseAwsProxy, setIpAddress,
       const xml = new window.DOMParser().parseFromString(text, 'text/xml');
 
       if (response.ok && xml.querySelector('vmix')) {
-        if (!connected) setConnected(true); // ✅ Only update if status has changed
+        if (!connected) setConnected(true);
 
-        // ✅ Fetch system details
         const version = xml.querySelector('version')?.textContent || 'Unknown';
 
         console.log(`vMix Version: ${version}, System is running`);
       } else {
-        if (connected) setConnected(false); // ✅ Prevent unnecessary disconnects
+        if (connected) setConnected(false);
       }
     } catch (error) {
       if (connected) setConnected(false);
@@ -59,14 +47,7 @@ export default function IpContainer({ useAwsProxy, setUseAwsProxy, setIpAddress,
     }
   };
 
-  // ✅ Run `checkConnection` every 5 seconds
-  useEffect(() => {
-    checkConnection(); // Run immediately on load
-    const interval = setInterval(checkConnection, 5000);
-    return () => clearInterval(interval);
-  }, [ipAddress, useAwsProxy]);
-
-  // ✅ Connect/Disconnect Manually
+  // Connect/Disconnect Manually
   const handleConnect = async () => {
     if (connected) {
       setConnected(false);
