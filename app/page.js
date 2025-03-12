@@ -6,13 +6,21 @@ import TimerController from './Components/TimerController';
 import VmixData from './Components/VmixData';
 
 export default function Home() {
+  const [useAwsProxy, setUseAwsProxy] = useState(true);
   const [ipAddress, setIpAddress] = useState('127.0.0.1');
   const [connected, setConnected] = useState(false);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] p-10 grid-cols-10 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]">
       <div className="whitespace-nowrap col-start-3 row-start-1 col-span-2">
-        <IpContainer ipAddress={ipAddress} setIpAddress={setIpAddress} connected={connected} setConnected={setConnected} />
+        <IpContainer
+          useAwsProxy={useAwsProxy}
+          setUseAwsProxy={setUseAwsProxy}
+          ipAddress={ipAddress}
+          setIpAddress={setIpAddress}
+          connected={connected}
+          setConnected={setConnected}
+        />
       </div>
       <main className="col-start-6 row-start-2 items-center sm:items-start">
         {!connected ? (
@@ -21,7 +29,7 @@ export default function Home() {
             <p>Connect to vMix server</p>
           </div>
         ) : (
-          <TimerController ipAddress={ipAddress} />
+          <TimerController ipAddress={ipAddress} useAwsProxy={useAwsProxy} />
         )}
         <div className="w-full whitespace-nowrap">
           <VmixData />

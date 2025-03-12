@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Countdown from './Countdown';
 
 export default function TimerController({ ipAddress, useAwsProxy }) {
   const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
 
-  const [inputKey, setInputKey] = useState(null);
+  console.debug({ useAwsProxy, ipAddress });
 
   // ✅ Ensure `useAwsProxy` is always defined
   const isAwsProxy = useAwsProxy !== undefined ? useAwsProxy : true;
@@ -14,12 +14,12 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
   // ✅ Prevents invalid API calls
   const baseUrl = isAwsProxy ? DEFAULT_AWS_PROXY_URL : ipAddress ? `http://${ipAddress}:8088/api/` : null;
 
-  console.debug({ baseUrl });
+  console.debug({ baseUrl, isAwsProxy });
 
   // ✅ Function to Fetch Input Key for Input #15
   const fetchInputKey = async () => {
     if (!baseUrl) {
-      console.warn('Skipping fetchInputKey: No valid API URL');
+      console.debug('Skipping fetchInputKey: No valid API URL');
       return null;
     }
 
@@ -33,9 +33,6 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
 
       // Find input with number="15"
       const input = Array.from(xml.querySelectorAll('input')).find((el) => el.getAttribute('number') === '15');
-
-      console.debug('KLICKAR');
-      console.debug({ input });
 
       if (input) {
         return input.getAttribute('key'); // ✅ Return key instead of setting state
@@ -58,6 +55,8 @@ export default function TimerController({ ipAddress, useAwsProxy }) {
     }
 
     const targetUrl = `${baseUrl}?Function=PauseCountdown&Input=${key}&SelectedName=Headline.Text`;
+
+    console.debug(targetUrl);
 
     try {
       const response = await fetch(targetUrl, { method: 'GET' });

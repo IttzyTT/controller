@@ -1,11 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-export default function IpContainer({ setIpAddress, ipAddress, setConnected, connected }) {
-  const [useAwsProxy, setUseAwsProxy] = useState(true);
+const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
 
-  const DEFAULT_AWS_PROXY_URL = 'https://awsvmixcontroller.tailabbf6c.ts.net/vmix';
-
+export default function IpContainer({ useAwsProxy, setUseAwsProxy, setIpAddress, ipAddress, setConnected, connected }) {
   useEffect(() => {
     const savedIpAddress = localStorage.getItem('ipAddress');
     const savedConnected = localStorage.getItem('connected') === 'true';
